@@ -8,21 +8,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Dnsbl\Resolver;
-
-use Dnsbl\Resolver\Response;
+namespace Dnsbl\BL;
 
 /**
- * Net DNS resolver
+ * Server exception
  *
  * @author Webeith <webeith@gmail.com>
  */
-class NetDnsResolver implements InterfaceResolver
+class ServerException extends \Exception
 {
-    public function query($hostname)
-    {
-        $response = new Response\NetDnsResponse();
-
-        return $response;
-    }
 }
