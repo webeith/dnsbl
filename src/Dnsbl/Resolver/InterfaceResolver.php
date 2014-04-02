@@ -17,4 +17,5 @@ namespace Dnsbl\Resolver;
  */
 interface InterfaceResolver
 {
+    public function query($hostname);
 }
