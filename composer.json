@@ -1,0 +1,25 @@
+{
+    "name": "webeith/dnsbl",
+    "type": "library",
+    "description": "DNSBL service",
+    "keywords": ["dnsbl"],
+    "homepage": "http://github.com/webeith/dnsbl",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Webeith",
+            "email": "webeith@gmail.com"
+        }
+    ],
+
+    "require": {
+        "php":          ">=5.3.2"
+    },
+
+    "require-dev": {
+    },
+
+    "autoload": {
+        "psr-0": { "Dnsbl": "src/" }
+    }
+}
