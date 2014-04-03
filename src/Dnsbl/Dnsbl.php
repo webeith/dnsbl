@@ -36,7 +36,7 @@ class Dnsbl
     {
         $result = array();
         foreach ($this->getDomainBlackLists() as $server) {
-            $result[$server->getHostname()] = $server->getResolver()->query($hostname);
+            $result[$server->getHostname()] = $server->getResolver()->execute($hostname);
         }
 
         return $result;

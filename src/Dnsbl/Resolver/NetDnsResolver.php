@@ -10,19 +10,23 @@
 
 namespace Dnsbl\Resolver;
 
-use Dnsbl\Resolver\Response;
+use Dnsbl\Resolver\Response,
+    Dnsbl\Resolver\Adapter\NetDnsAdapter,
+    Dnsbl\BL\Server;
 
 /**
  * Net DNS resolver
  *
  * @author Webeith <webeith@gmail.com>
  */
-class NetDnsResolver implements InterfaceResolver
+class NetDnsResolver extends NetDnsAdapter
 {
-    public function query($hostname)
-    {
-        $response = new Response\NetDnsResponse();
+    protected $supportedChecks = array(
+        Server::CHECK_IPV4
+    );
 
-        return $response;
+    public function isSupport($check)
+    {
+        return in_array($check, $this->supportedChecks);
     }
 }

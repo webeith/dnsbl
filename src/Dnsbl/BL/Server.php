@@ -122,6 +122,14 @@ class Server
      */
     public function setResolver(Resolver\InterfaceResolver $resolver)
     {
+        foreach ($this->supportedChecks as $check) {
+            if (!$resolver->isSupport($check)) {
+                throw new ServerException('Resolver ' .get_class($resolver) .' is unsupported type checking: ' . $check);
+            }
+        }
+
+        $resolver->setContext($this);
+
         $this->resolver = $resolver;
 
         return $this;

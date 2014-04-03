@@ -25,8 +25,15 @@ class ServerTest extends \PHPUnit_Framework_TestCase
      */
     public function shouldSetDefaultResolverAfterSetInBl()
     {
+        $resolver = $this->getMock('\Dnsbl\Resolver\InterfaceResolver');
+        $resolver->expects($this->once())
+            ->method('isSupport')->will(
+                $this->returnValue(true)
+            );
+
         $spBl = new Server('sp.subrl.org', array(Server::CHECK_DOMAIN));
         $this->assertNull($spBl->getResolver());
+        $spBl->setResolver($resolver);
 
         $this->dnsbl->addBl($spBl);
         $this->assertInstanceOf('\Dnsbl\Resolver\InterfaceResolver', $spBl->getResolver());
