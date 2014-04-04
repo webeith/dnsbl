@@ -223,6 +223,13 @@ class Server
         return $this;
     }
 
+    /**
+     * Add supported check type
+     *
+     * @param string $check
+     *
+     * @return void
+     */
     protected function addCheck($check)
     {
         if (!in_array($check, $this->supportedChecks)) {
@@ -230,6 +237,13 @@ class Server
         }
     }
 
+    /**
+     * Remove supported check type
+     *
+     * @param string $check
+     *
+     * @return void
+     */
     protected function removeCheck($check)
     {
         if (in_array($check, $this->supportedChecks)) {

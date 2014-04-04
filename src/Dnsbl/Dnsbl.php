@@ -25,6 +25,13 @@ class Dnsbl
      */
     protected $blackLists = array();
 
+    /**
+     * Check domain name in black list
+     *
+     * @param string $domain
+     *
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
+     */
     public function checkDomain($domain)
     {
         $result = array();
@@ -35,6 +42,13 @@ class Dnsbl
         return $result;
     }
 
+    /**
+     * Check IPv4 name in black list
+     *
+     * @param string $ip
+     *
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
+     */
     public function checkIP($ip)
     {
         $result = array();
@@ -45,6 +59,13 @@ class Dnsbl
         return $result;
     }
 
+    /**
+     * Check IPv6 name in black list
+     *
+     * @param string $ip
+     *
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
+     */
     public function checkIPv6($ip)
     {
         $result = array();

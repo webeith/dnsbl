@@ -26,6 +26,13 @@ class NetDnsDomainResolver extends NetDnsAdapter
         Server::CHECK_DOMAIN
     );
 
+    /**
+     * Execute query
+     *
+     * @param string $hostname
+     *
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
+     */
     public function execute($hostname)
     {
         $server = $this->getContext();

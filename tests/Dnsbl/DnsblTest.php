@@ -74,7 +74,6 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
             array('pbl.spamhaus.org' => $bl),
             $this->dnsbl->getDomainBlackLists()
         );
-
     }
 
     /**
