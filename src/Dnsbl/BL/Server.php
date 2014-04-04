@@ -84,6 +84,90 @@ class Server
     }
 
     /**
+     * Enable or disable the domain
+     *
+     * @param bool $value
+     *
+     * @return Server
+     */
+    public function enableDomain($value = true)
+    {
+        if ($value) {
+            $this->addCheck(self::CHECK_DOMAIN);
+        } else {
+            $this->removeCheck(self::CHECK_DOMAIN);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable the IPv6
+     *
+     * @param bool $value
+     *
+     * @return Server
+     */
+    public function enableIPv6($value = true)
+    {
+        if ($value) {
+            $this->addCheck(self::CHECK_IPV6);
+        } else {
+            $this->removeCheck(self::CHECK_IPV6);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable the IPv4
+     *
+     * @param bool $value
+     *
+     * @return Server
+     */
+    public function enableIPv4($value = true)
+    {
+        if ($value) {
+            $this->addCheck(self::CHECK_IPV4);
+        } else {
+            $this->removeCheck(self::CHECK_IPV4);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check server has IPv4
+     *
+     * @return bool
+     */
+    public function hasIPv4()
+    {
+        return isset($this->supportedChecks[self::CHECK_IPV4]);
+    }
+
+    /**
+     * Check server has IPv6
+     *
+     * @return bool
+     */
+    public function hasIPv6()
+    {
+        return isset($this->supportedChecks[self::CHECK_IPV6]);
+    }
+
+    /**
+     * Check server has domain
+     *
+     * @return bool
+     */
+    public function hasDomain()
+    {
+        return isset($this->supportedChecks[self::CHECK_DOMAIN]);
+    }
+
+    /**
      * Gets the value of hostname
      *
      * @return string
@@ -137,5 +221,22 @@ class Server
         $this->resolver = $resolver;
 
         return $this;
+    }
+
+    protected function addCheck($check)
+    {
+        if (!in_array($check, $this->supportedChecks)) {
+            $this->supportedChecks[] = $check;
+        }
+    }
+
+    protected function removeCheck($check)
+    {
+        if (in_array($check, $this->supportedChecks)) {
+            $key = array_search($check, $this->supportedChecks);
+            if (isset($this->supportedChecks[$key])) {
+                unset($this->supportedChecks[$key]);
+            }
+        }
     }
 }
