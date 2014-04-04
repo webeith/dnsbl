@@ -33,7 +33,7 @@ class NetDnsIPResolver extends NetDnsAdapter
 
         $result = $this->query($query);
 
-        $response = new Resolver\Response\NetDnsResponse();
+        $response = new Response\NetDnsResponse();
         $response->setHostname($hostname);
         $response->setServer($server);
         $response->setQuery($query);

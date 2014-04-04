@@ -29,11 +29,11 @@ class NetDnsDomainResolver extends NetDnsAdapter
     public function execute($hostname)
     {
         $server = $this->getContext();
-        $query  = Utils::getHostForLookup($hostname, $server->getHostname());
+        $query  = $hostname. '.' . $server->getHostname();
 
         $result = $this->query($query);
 
-        $response = new Resolver\Response\NetDnsResponse();
+        $response = new Response\NetDnsResponse();
         $response->setHostname($hostname);
         $response->setServer($server);
         $response->setQuery($query);

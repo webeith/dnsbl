@@ -42,6 +42,10 @@ class Server
     {
         $this->setSupportedChecks($supportedChecks);
         $this->setHostname($hostname);
+
+        if (!is_null($resolver)) {
+            $this->setResolver($resolver);
+        }
     }
 
     /**

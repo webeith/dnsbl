@@ -15,7 +15,7 @@ namespace Dnsbl;
  *
  * @author Webeith <webeith@gmail.com>
  */
-class Untils
+class Utils
 {
     /**
      * Get host to lookup. Lookup a host if neccessary and get the
