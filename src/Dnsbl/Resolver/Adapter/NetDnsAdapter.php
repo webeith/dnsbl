@@ -10,7 +10,7 @@
 
 namespace Dnsbl\Resolver\Adapter;
 
-require_once('Net/DNSBL.php');
+@require_once('Net/DNSBL.php');
 
 use Dnsbl\Resolver,
     Dnsbl\BL\Server;
@@ -60,8 +60,6 @@ abstract class NetDnsAdapter extends \Net_DNS_Resolver implements Resolver\Inter
             $response->setAnswer($answer);
         }
 
-        print_r($response);
-        die;
         return $response;
     }
 
