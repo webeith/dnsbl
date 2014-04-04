@@ -20,17 +20,10 @@ use Dnsbl\Resolver,
  */
 class Dnsbl
 {
-    protected $blackLists = array();
-
     /**
-     * @var Resolver\InterfaceResolver
+     * @var array
      */
-    protected $defaultResolver;
-
-    public function __construct()
-    {
-        $this->defaultResolver = new Resolver\NetDnsResolver();
-    }
+    protected $blackLists = array();
 
     public function check($hostname)
     {
@@ -43,30 +36,6 @@ class Dnsbl
     }
 
     /**
-     * Get the default resolver
-     *
-     * @return Resolver\InterfaceResolver
-     */
-    public function getDefaultResolver()
-    {
-        return $this->defaultResolver;
-    }
-
-    /**
-     * Sets the default resolver
-     *
-     * @param Resolver\InterfaceResolver $resolver
-     *
-     * @return Dnsbl
-     */
-    public function setDefaultResolver(Resolver\InterfaceResolver $resolver)
-    {
-        $this->defaultResolver = $resolver;
-
-        return $this;
-    }
-
-    /**
      * Add the value to BlackLists and set default resolver
      *
      * @param Server $server
@@ -76,7 +45,7 @@ class Dnsbl
     public function addBl(Server $server)
     {
         if (is_null($server->getResolver())) {
-            $server->setResolver($this->getDefaultResolver());
+            throw new Resolver\NotFoundResolverException('Set the server resolver.');
         }
 
         foreach($server->getSupportedChecks() as $check) {

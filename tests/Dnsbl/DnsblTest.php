@@ -23,11 +23,16 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shouldSetDefaultResolverAfterCreate()
+    public function addBlWithOutResolver()
     {
-        $dnsbl = new Dnsbl();
+        $this->setExpectedException(
+          'Dnsbl\Resolver\NotFoundResolverException', 'Set the server resolver.'
+        );
 
-        $this->assertInstanceOf('\Dnsbl\Resolver\InterfaceResolver', $dnsbl->getDefaultResolver());
+        $dnsbl = new Dnsbl();
+        $bl = new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4, Server::CHECK_DOMAIN, Server::CHECK_IPV6));
+
+        $this->dnsbl->addBl($bl);
     }
 
     /**
