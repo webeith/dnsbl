@@ -122,9 +122,9 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function check()
+    public function checkIp()
     {
-        $resolver = $this->getMock('\Dnsbl\Resolver\InterfaceResolver');
+        $resolver = $this->getMock('\Dnsbl\Resolver\NetDnsIPResolver');
         $resolver->expects($this->once())
             ->method('isSupport')->will(
                 $this->returnValue(true)
@@ -136,13 +136,40 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
                 )
             );
 
-        $wsBl = new Server('pbl.spamhaus.org', array(Server::CHECK_DOMAIN));
+        $wsBl = new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4));
         $wsBl->setResolver($resolver);
 
         $this->dnsbl->addBl($wsBl);
-        $result = $this->dnsbl->check('127.0.0.2');
+        $result = $this->dnsbl->checkIP('127.0.0.2');
 
         $this->assertTrue(is_array($result));
         $this->assertInstanceOf('\Dnsbl\Resolver\Response\InterfaceResponse', $result['pbl.spamhaus.org']);
+    }
+
+    /**
+     * @test
+     */
+    public function checkDomain()
+    {
+        $resolver = $this->getMock('\Dnsbl\Resolver\NetDnsDomainResolver');
+        $resolver->expects($this->once())
+            ->method('isSupport')->will(
+                $this->returnValue(true)
+            );
+        $resolver->expects($this->once())
+            ->method('execute')->will(
+                $this->returnValue(
+                    $this->getMock('\Dnsbl\Resolver\Response\InterfaceResponse')
+                )
+            );
+
+        $wsBl = new Server('dbl.spamhaus.org', array(Server::CHECK_DOMAIN));
+        $wsBl->setResolver($resolver);
+
+        $this->dnsbl->addBl($wsBl);
+        $result = $this->dnsbl->checkDomain('test.com');
+
+        $this->assertTrue(is_array($result));
+        $this->assertInstanceOf('\Dnsbl\Resolver\Response\InterfaceResponse', $result['dbl.spamhaus.org']);
     }
 }

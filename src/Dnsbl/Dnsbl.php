@@ -25,11 +25,31 @@ class Dnsbl
      */
     protected $blackLists = array();
 
-    public function check($hostname)
+    public function checkDomain($domain)
     {
         $result = array();
         foreach ($this->getDomainBlackLists() as $server) {
-            $result[$server->getHostname()] = $server->getResolver()->execute($hostname);
+            $result[$server->getHostname()] = $server->getResolver()->execute($domain);
+        }
+
+        return $result;
+    }
+
+    public function checkIP($ip)
+    {
+        $result = array();
+        foreach ($this->getIpv4BlackLists() as $server) {
+            $result[$server->getHostname()] = $server->getResolver()->execute($ip);
+        }
+
+        return $result;
+    }
+
+    public function checkIPv6($ip)
+    {
+        $result = array();
+        foreach ($this->getIpv6BlackLists() as $server) {
+            $result[$server->getHostname()] = $server->getResolver()->execute($ip);
         }
 
         return $result;
