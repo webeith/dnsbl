@@ -2,6 +2,8 @@ language: php
 
 php: [5.3, 5.4, 5.5, 5.6, hhvm]
 
+install:
+    - pear install pear/Net_DNSBL
 matrix:
   allow_failures:
     - php: hhvm

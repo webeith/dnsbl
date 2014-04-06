@@ -42,6 +42,10 @@ class Server
     {
         $this->setSupportedChecks($supportedChecks);
         $this->setHostname($hostname);
+
+        if (!is_null($resolver)) {
+            $this->setResolver($resolver);
+        }
     }
 
     /**
@@ -77,6 +81,90 @@ class Server
         $this->supportedChecks = $supportedChecks;
 
         return $this;
+    }
+
+    /**
+     * Enable or disable the domain
+     *
+     * @param bool $value
+     *
+     * @return Server
+     */
+    public function enableDomain($value = true)
+    {
+        if ($value) {
+            $this->addCheck(self::CHECK_DOMAIN);
+        } else {
+            $this->removeCheck(self::CHECK_DOMAIN);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable the IPv6
+     *
+     * @param bool $value
+     *
+     * @return Server
+     */
+    public function enableIPv6($value = true)
+    {
+        if ($value) {
+            $this->addCheck(self::CHECK_IPV6);
+        } else {
+            $this->removeCheck(self::CHECK_IPV6);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Enable or disable the IPv4
+     *
+     * @param bool $value
+     *
+     * @return Server
+     */
+    public function enableIPv4($value = true)
+    {
+        if ($value) {
+            $this->addCheck(self::CHECK_IPV4);
+        } else {
+            $this->removeCheck(self::CHECK_IPV4);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check server has IPv4
+     *
+     * @return bool
+     */
+    public function hasIPv4()
+    {
+        return isset($this->supportedChecks[self::CHECK_IPV4]);
+    }
+
+    /**
+     * Check server has IPv6
+     *
+     * @return bool
+     */
+    public function hasIPv6()
+    {
+        return isset($this->supportedChecks[self::CHECK_IPV6]);
+    }
+
+    /**
+     * Check server has domain
+     *
+     * @return bool
+     */
+    public function hasDomain()
+    {
+        return isset($this->supportedChecks[self::CHECK_DOMAIN]);
     }
 
     /**
@@ -122,8 +210,47 @@ class Server
      */
     public function setResolver(Resolver\InterfaceResolver $resolver)
     {
+        foreach ($this->supportedChecks as $check) {
+            if (!$resolver->isSupport($check)) {
+                throw new ServerException('Resolver ' .get_class($resolver) .' is unsupported type checking: ' . $check);
+            }
+        }
+
+        $resolver->setContext($this);
+
         $this->resolver = $resolver;
 
         return $this;
+    }
+
+    /**
+     * Add supported check type
+     *
+     * @param string $check
+     *
+     * @return void
+     */
+    protected function addCheck($check)
+    {
+        if (!in_array($check, $this->supportedChecks)) {
+            $this->supportedChecks[] = $check;
+        }
+    }
+
+    /**
+     * Remove supported check type
+     *
+     * @param string $check
+     *
+     * @return void
+     */
+    protected function removeCheck($check)
+    {
+        if (in_array($check, $this->supportedChecks)) {
+            $key = array_search($check, $this->supportedChecks);
+            if (isset($this->supportedChecks[$key])) {
+                unset($this->supportedChecks[$key]);
+            }
+        }
     }
 }

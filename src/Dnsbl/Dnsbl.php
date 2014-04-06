@@ -20,50 +20,60 @@ use Dnsbl\Resolver,
  */
 class Dnsbl
 {
+    /**
+     * @var array
+     */
     protected $blackLists = array();
 
     /**
-     * @var Resolver\InterfaceResolver
+     * Check domain name in black list
+     *
+     * @param string $domain
+     *
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
      */
-    protected $defaultResolver;
-
-    public function __construct()
-    {
-        $this->defaultResolver = new Resolver\NetDnsResolver();
-    }
-
-    public function check($hostname)
+    public function checkDomain($domain)
     {
         $result = array();
         foreach ($this->getDomainBlackLists() as $server) {
-            $result[$server->getHostname()] = $server->getResolver()->query($hostname);
+            $result[$server->getHostname()] = $server->getResolver()->execute($domain);
         }
 
         return $result;
     }
 
     /**
-     * Get the default resolver
+     * Check IPv4 name in black list
      *
-     * @return Resolver\InterfaceResolver
+     * @param string $ip
+     *
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
      */
-    public function getDefaultResolver()
+    public function checkIP($ip)
     {
-        return $this->defaultResolver;
+        $result = array();
+        foreach ($this->getIpv4BlackLists() as $server) {
+            $result[$server->getHostname()] = $server->getResolver()->execute($ip);
+        }
+
+        return $result;
     }
 
     /**
-     * Sets the default resolver
+     * Check IPv6 name in black list
      *
-     * @param Resolver\InterfaceResolver $resolver
+     * @param string $ip
      *
-     * @return Dnsbl
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
      */
-    public function setDefaultResolver(Resolver\InterfaceResolver $resolver)
+    public function checkIPv6($ip)
     {
-        $this->defaultResolver = $resolver;
+        $result = array();
+        foreach ($this->getIpv6BlackLists() as $server) {
+            $result[$server->getHostname()] = $server->getResolver()->execute($ip);
+        }
 
-        return $this;
+        return $result;
     }
 
     /**
@@ -76,7 +86,7 @@ class Dnsbl
     public function addBl(Server $server)
     {
         if (is_null($server->getResolver())) {
-            $server->setResolver($this->getDefaultResolver());
+            throw new Resolver\NotFoundResolverException('Set the server resolver.');
         }
 
         foreach($server->getSupportedChecks() as $check) {

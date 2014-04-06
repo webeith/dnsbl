@@ -10,6 +10,8 @@
 
 namespace Dnsbl\Resolver;
 
+use Dnsbl\BL\Server;
+
 /**
  * Resolver interface
  *
@@ -17,5 +19,11 @@ namespace Dnsbl\Resolver;
  */
 interface InterfaceResolver
 {
-    public function query($hostname);
+    public function execute($hostname);
+
+    public function setContext(Server $context);
+
+    public function getContext();
+
+    public function isSupport($check);
 }

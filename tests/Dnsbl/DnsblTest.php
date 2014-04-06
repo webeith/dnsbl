@@ -23,11 +23,16 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shouldSetDefaultResolverAfterCreate()
+    public function addBlWithOutResolver()
     {
-        $dnsbl = new Dnsbl();
+        $this->setExpectedException(
+          'Dnsbl\Resolver\NotFoundResolverException', 'Set the server resolver.'
+        );
 
-        $this->assertInstanceOf('\Dnsbl\Resolver\InterfaceResolver', $dnsbl->getDefaultResolver());
+        $dnsbl = new Dnsbl();
+        $bl = new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4, Server::CHECK_DOMAIN, Server::CHECK_IPV6));
+
+        $this->dnsbl->addBl($bl);
     }
 
     /**
@@ -35,34 +40,40 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
      */
     public function addBl()
     {
-        $bl = new Server('ws.subrl.org', array(Server::CHECK_IPV4, Server::CHECK_DOMAIN, Server::CHECK_IPV6));
+        $resolver = $this->getMock('\Dnsbl\Resolver\InterfaceResolver');
+        $resolver->expects($this->exactly(3))
+            ->method('isSupport')->will(
+                $this->returnValue(true)
+            );
+
+        $bl = new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4, Server::CHECK_DOMAIN, Server::CHECK_IPV6));
+        $bl->setResolver($resolver);
 
         $this->dnsbl->addBl($bl);
 
         $this->assertSame(
             array(
-                Server::CHECK_IPV4   => array('ws.subrl.org' => $bl),
-                Server::CHECK_DOMAIN => array('ws.subrl.org' => $bl),
-                Server::CHECK_IPV6   => array('ws.subrl.org' => $bl)
+                Server::CHECK_IPV4   => array('pbl.spamhaus.org' => $bl),
+                Server::CHECK_DOMAIN => array('pbl.spamhaus.org' => $bl),
+                Server::CHECK_IPV6   => array('pbl.spamhaus.org' => $bl)
             ),
             $this->dnsbl->getBlackLists()
         );
 
         $this->assertSame(
-            array('ws.subrl.org' => $bl),
+            array('pbl.spamhaus.org' => $bl),
             $this->dnsbl->getIpv4BlackLists()
         );
 
         $this->assertSame(
-            array('ws.subrl.org' => $bl),
+            array('pbl.spamhaus.org' => $bl),
             $this->dnsbl->getIpv6BlackLists()
         );
 
         $this->assertSame(
-            array('ws.subrl.org' => $bl),
+            array('pbl.spamhaus.org' => $bl),
             $this->dnsbl->getDomainBlackLists()
         );
-
     }
 
     /**
@@ -70,20 +81,28 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
      */
     public function removeBl()
     {
-        $wsBl = new Server('ws.subrl.org', array(Server::CHECK_IPV4, Server::CHECK_DOMAIN, Server::CHECK_IPV6));
+        $resolver = $this->getMock('\Dnsbl\Resolver\InterfaceResolver');
+        $resolver->expects($this->exactly(4))
+            ->method('isSupport')->will(
+                $this->returnValue(true)
+            );
+
+        $wsBl = new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4, Server::CHECK_DOMAIN, Server::CHECK_IPV6));
+        $wsBl->setResolver($resolver);
         $spBl = new Server('sp.subrl.org', array(Server::CHECK_DOMAIN));
+        $spBl->setResolver($resolver);
 
         $this->dnsbl->addBl($wsBl);
         $this->dnsbl->addBl($spBl);
 
         $this->assertSame(
             array(
-                Server::CHECK_IPV4   => array('ws.subrl.org' => $wsBl),
+                Server::CHECK_IPV4   => array('pbl.spamhaus.org' => $wsBl),
                 Server::CHECK_DOMAIN => array(
-                    'ws.subrl.org' => $wsBl,
+                    'pbl.spamhaus.org' => $wsBl,
                     'sp.subrl.org' => $spBl
                 ),
-                Server::CHECK_IPV6   => array('ws.subrl.org' => $wsBl)
+                Server::CHECK_IPV6   => array('pbl.spamhaus.org' => $wsBl)
             ),
             $this->dnsbl->getBlackLists()
         );
@@ -91,9 +110,9 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
         $this->dnsbl->removeBl('sp.subrl.org');
         $this->assertSame(
             array(
-                Server::CHECK_IPV4   => array('ws.subrl.org' => $wsBl),
-                Server::CHECK_DOMAIN => array('ws.subrl.org' => $wsBl),
-                Server::CHECK_IPV6   => array('ws.subrl.org' => $wsBl)
+                Server::CHECK_IPV4   => array('pbl.spamhaus.org' => $wsBl),
+                Server::CHECK_DOMAIN => array('pbl.spamhaus.org' => $wsBl),
+                Server::CHECK_IPV6   => array('pbl.spamhaus.org' => $wsBl)
             ),
             $this->dnsbl->getBlackLists()
         );
@@ -102,14 +121,54 @@ class DnsblTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function check()
+    public function checkIp()
     {
-        $wsBl = new Server('ws.subrl.org', array(Server::CHECK_DOMAIN));
+        $resolver = $this->getMock('\Dnsbl\Resolver\NetDnsIPResolver');
+        $resolver->expects($this->once())
+            ->method('isSupport')->will(
+                $this->returnValue(true)
+            );
+        $resolver->expects($this->once())
+            ->method('execute')->will(
+                $this->returnValue(
+                    $this->getMock('\Dnsbl\Resolver\Response\InterfaceResponse')
+                )
+            );
+
+        $wsBl = new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4));
+        $wsBl->setResolver($resolver);
 
         $this->dnsbl->addBl($wsBl);
-        $result = $this->dnsbl->check('example.com');
+        $result = $this->dnsbl->checkIP('127.0.0.2');
 
         $this->assertTrue(is_array($result));
-        $this->assertInstanceOf('\Dnsbl\Resolver\Response\InterfaceResponse', $result['ws.subrl.org']);
+        $this->assertInstanceOf('\Dnsbl\Resolver\Response\InterfaceResponse', $result['pbl.spamhaus.org']);
+    }
+
+    /**
+     * @test
+     */
+    public function checkDomain()
+    {
+        $resolver = $this->getMock('\Dnsbl\Resolver\NetDnsDomainResolver');
+        $resolver->expects($this->once())
+            ->method('isSupport')->will(
+                $this->returnValue(true)
+            );
+        $resolver->expects($this->once())
+            ->method('execute')->will(
+                $this->returnValue(
+                    $this->getMock('\Dnsbl\Resolver\Response\InterfaceResponse')
+                )
+            );
+
+        $wsBl = new Server('dbl.spamhaus.org', array(Server::CHECK_DOMAIN));
+        $wsBl->setResolver($resolver);
+
+        $this->dnsbl->addBl($wsBl);
+        $result = $this->dnsbl->checkDomain('test.com');
+
+        $this->assertTrue(is_array($result));
+        $this->assertInstanceOf('\Dnsbl\Resolver\Response\InterfaceResponse', $result['dbl.spamhaus.org']);
     }
 }

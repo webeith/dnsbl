@@ -10,11 +10,14 @@
 
 namespace Dnsbl\Resolver\Response;
 
+use Dnsbl\BL\Server;
+
 /**
  * Net DNS resolver response
  *
  * @author Webeith <webeith@gmail.com>
  */
-class NetDnsResponse implements InterfaceResponse
+class NetDnsResponse extends AbstractResponse
 {
+
 }

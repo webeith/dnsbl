@@ -10,19 +10,11 @@
 
 namespace Dnsbl\Resolver;
 
-use Dnsbl\Resolver\Response;
-
 /**
- * Net DNS resolver
+ * Server exception
  *
  * @author Webeith <webeith@gmail.com>
  */
-class NetDnsResolver implements InterfaceResolver
+class NotFoundResolverException extends \Exception
 {
-    public function query($hostname)
-    {
-        $response = new Response\NetDnsResponse();
-
-        return $response;
-    }
 }
