@@ -14,13 +14,25 @@ use Dnsbl\Dnsbl,
     Dnsbl\Resolver,
     Dnsbl\BL\Server;
 
+// Basic checking
 $domainResolver = new Resolver\NetDnsDomainResolver();
 $ipResolver = new Resolver\NetDnsIPResolver();
+
+// Checking from url
+$urlResolver = new Resolver\UrlResolver();
+$urlResolver->setLocation('https://zeustracker.abuse.ch/blocklist.php?download=baddomains');
+$urlResolver->setSupportedChecks(array(Server::CHECK_DOMAIN));
+
+// Checking from file
+file_put_contents('zeustracker.ip.bl.file', file_get_contents('https://zeustracker.abuse.ch/blocklist.php?download=ipblocklist'));
+$fileResolver = new Resolver\FileResolver('zeustracker.ip.bl.file', array(Server::CHECK_IPV4));
 
 $dnsbl = new Dnsbl();
 
 $dnsbl->addBl(new Server('dbl.spamhaus.org', array(Server::CHECK_DOMAIN), $domainResolver));
 $dnsbl->addBl(new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4), $ipResolver));
+$dnsbl->addBl(new Server('zeustracker.abuse.ch', array(Server::CHECK_DOMAIN), $urlResolver));
+$dnsbl->addBl(new Server('zeustracker.ip.bl.file', array(Server::CHECK_IPV4), $fileResolver));
 
 foreach ($dnsbl->checkDomain('test.com') as $blackList => $result) {
     print_r($result);
@@ -29,6 +41,7 @@ foreach ($dnsbl->checkDomain('test.com') as $blackList => $result) {
 foreach ($dnsbl->checkIP('127.0.0.2') as $blackList => $result) {
     print_r($result);
 }
+
 
 ```
 

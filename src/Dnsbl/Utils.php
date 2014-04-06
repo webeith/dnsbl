@@ -23,6 +23,7 @@ class Utils
      *
      * @param string $host      Host OR IP to use for building the lookup.
      * @param string $blacklist Blacklist to use for building the lookup.
+     * @param string $isIP      is IP adress?
      *
      * @return string Ready to use host to lookup
      */

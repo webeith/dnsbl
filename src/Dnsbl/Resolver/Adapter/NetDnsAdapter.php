@@ -28,6 +28,11 @@ abstract class NetDnsAdapter extends \Net_DNS_Resolver implements Resolver\Inter
     protected $supportedChecks = array();
 
     /**
+     * @var Server
+     */
+    protected $context;
+
+    /**
      * Resolver is supported check
      *
      * @param string $check
@@ -38,11 +43,6 @@ abstract class NetDnsAdapter extends \Net_DNS_Resolver implements Resolver\Inter
     {
         return in_array($check, $this->supportedChecks);
     }
-
-    /**
-     * @var Server
-     */
-    protected $context;
 
     /**
      * Execute query

@@ -41,9 +41,9 @@ class NetDnsIPResolver extends NetDnsAdapter
         if ($result) {
             $response->listed();
 
+            $answer = '';
             $resultTXT = $this->query($query, 'TXT');
             if ($resultTXT) {
-                $answer = '';
                 foreach ($resultTXT->answer as $txt) {
                     $answer .= $txt->text[0];
                 }
