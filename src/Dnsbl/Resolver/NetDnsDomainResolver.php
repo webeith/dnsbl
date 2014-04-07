@@ -38,7 +38,7 @@ class NetDnsDomainResolver extends NetDnsAdapter
         $server = $this->getContext();
         $query  = $hostname. '.' . $server->getHostname();
 
-        $result = $this->query($query);
+        $result = @$this->query($query);
 
         $response = new Response\NetDnsResponse();
         $response->setHostname($hostname);
@@ -48,7 +48,7 @@ class NetDnsDomainResolver extends NetDnsAdapter
         if ($result) {
             $response->listed();
 
-            $resultTXT = $this->query($query, 'TXT');
+            $resultTXT = @$this->query($query, 'TXT');
             if ($resultTXT) {
                 $answer = '';
                 foreach ($resultTXT->answer as $txt) {

@@ -31,7 +31,7 @@ class NetDnsIPResolver extends NetDnsAdapter
         $server = $this->getContext();
         $query  = Utils::getHostForLookup($hostname, $server->getHostname(), true);
 
-        $result = $this->query($query);
+        $result = @$this->query($query);
 
         $response = new Response\NetDnsResponse();
         $response->setHostname($hostname);
@@ -42,7 +42,7 @@ class NetDnsIPResolver extends NetDnsAdapter
             $response->listed();
 
             $answer = '';
-            $resultTXT = $this->query($query, 'TXT');
+            $resultTXT = @$this->query($query, 'TXT');
             if ($resultTXT) {
                 foreach ($resultTXT->answer as $txt) {
                     $answer .= $txt->text[0];

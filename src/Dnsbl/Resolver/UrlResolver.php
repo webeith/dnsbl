@@ -61,7 +61,7 @@ class UrlResolver implements InterfaceResolver
     {
         $server = $this->getContext();
 
-        $result = file($this->location);
+        $result = @file($this->location);
 
         $response = new Response\NetDnsResponse();
         $response->setHostname($hostname);
