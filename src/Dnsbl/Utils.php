@@ -10,6 +10,8 @@
 
 namespace Dnsbl;
 
+@require_once('Net/DNSBL.php');
+
 /**
  * Dnsbl service
  *
@@ -35,7 +37,7 @@ class Utils
 
         if ($isIP && !filter_var($hostname, FILTER_VALIDATE_IP)) {
             $resolver = new \Net_DNS_Resolver;
-            $response = $resolver->query($hostname);
+            $response = @$resolver->query($hostname);
             $ip = isset($response->answer[0]->address) ? $response->answer[0]->address : null;
 
             if (!$ip || !filter_var($ip, FILTER_VALIDATE_IP)) {
