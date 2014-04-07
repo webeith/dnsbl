@@ -24,6 +24,4 @@ interface InterfaceResolver
     public function setContext(Server $context);
 
     public function getContext();
-
-    public function isSupport($check);
 }

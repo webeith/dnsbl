@@ -11,7 +11,7 @@
 namespace Dnsbl\Resolver;
 
 use Dnsbl\Resolver\Response,
-    Dnsbl\Resolver\InterfaceResolver,
+    Dnsbl\Resolver\AbstractResolver,
     Dnsbl\BL\Server;
 
 /**
@@ -19,7 +19,7 @@ use Dnsbl\Resolver\Response,
  *
  * @author Webeith <webeith@gmail.com>
  */
-class UrlResolver implements InterfaceResolver
+class UrlResolver implements AbstractResolver
 {
     /**
      * @var strging
@@ -27,26 +27,15 @@ class UrlResolver implements InterfaceResolver
     protected $location;
 
     /**
-     * @var Server
-     */
-    protected $context;
-
-    /**
-     * @var array
-     */
-    protected $supportedChecks = array();
-
-    /**
-     * Constructro
+     * Constructor
      *
      * @param string $location
      * @param array  $supportedChecks
      *
      * @return void
      */
-    public function __construct($location = null, array $supportedChecks = array())
+    public function __construct($location = null)
     {
-        $this->setSupportedChecks($supportedChecks);
         $this->setLocation($location);
     }
 
@@ -91,76 +80,5 @@ class UrlResolver implements InterfaceResolver
         $this->location = $location;
 
         return $this;
-    }
-
-    /**
-     * Resolver is supported check
-     *
-     * @param string $check
-     *
-     * @return bool
-     */
-    public function isSupport($check)
-    {
-        return in_array($check, $this->supportedChecks);
-    }
-
-    /**
-     * Gets the value of supportedChecks
-     *
-     * @return string
-     */
-    public function getSupportedChecks()
-    {
-        return $this->supportedChecks;
-    }
-
-    /**
-     * Sets the value of supportedChecks
-     *
-     * @param string $supportedChecks
-     *
-     * @return Server
-     */
-    public function setSupportedChecks(array $supportedChecks)
-    {
-        $checks = array(
-            Server::CHECK_IPV4,
-            Server::CHECK_IPV6,
-            Server::CHECK_DOMAIN
-        );
-
-        foreach ($supportedChecks as $check) {
-            if (!in_array($check, $checks)) {
-                throw new ServerException($check . ' is unsupported type checking');
-            }
-        }
-        $this->supportedChecks = $supportedChecks;
-
-        return $this;
-    }
-
-    /**
-     * Sets the context of resolver
-     *
-     * @param Dnsbl\BL\Server $context
-     *
-     * @return Resolver\InterfaceResolver
-     */
-    public function setContext(Server $context)
-    {
-        $this->context = $context;
-
-        return $this;
-    }
-
-    /**
-     * Gets the value of resolver context
-     *
-     * @return \Dnsbl\BL\Server
-     */
-    public function getContext()
-    {
-        return $this->context;
     }
 }

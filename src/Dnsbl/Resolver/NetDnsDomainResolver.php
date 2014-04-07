@@ -22,10 +22,6 @@ use Dnsbl\Resolver\Response,
  */
 class NetDnsDomainResolver extends NetDnsAdapter
 {
-    protected $supportedChecks = array(
-        Server::CHECK_DOMAIN
-    );
-
     /**
      * Execute query
      *
@@ -48,9 +44,9 @@ class NetDnsDomainResolver extends NetDnsAdapter
         if ($result) {
             $response->listed();
 
+            $answer = '';
             $resultTXT = @$this->query($query, 'TXT');
             if ($resultTXT) {
-                $answer = '';
                 foreach ($resultTXT->answer as $txt) {
                     $answer .= $txt->text[0];
                 }

@@ -8,19 +8,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Dnsbl\Resolver\Adapter;
+namespace Dnsbl\Resolver;
 
-@require_once('Net/DNSBL.php');
-
-use Dnsbl\Resolver,
+use Dnsbl\Resolver\Response,
+    Dnsbl\Resolver\InterfaceResolver,
     Dnsbl\BL\Server;
 
 /**
- * Dnsbl service
+ * Abstract resolver
  *
  * @author Webeith <webeith@gmail.com>
  */
-abstract class NetDnsAdapter extends \Net_DNS_Resolver implements Resolver\InterfaceResolver
+abstract class UrlResolver implements InterfaceResolver
 {
     /**
      * @var Server
@@ -32,7 +31,7 @@ abstract class NetDnsAdapter extends \Net_DNS_Resolver implements Resolver\Inter
      *
      * @param string $hostname
      *
-     * @return Resolver\Response\InterfaceResponse
+     * @return Dnsbl\Resolver\Response\InterfaceResponse
      */
     abstract public function execute($hostname);
 

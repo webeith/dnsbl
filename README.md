@@ -14,44 +14,43 @@ use Dnsbl\Dnsbl,
     Dnsbl\Resolver,
     Dnsbl\BL\Server;
 
-// Basic checking
+
 $domainResolver = new Resolver\NetDnsDomainResolver();
 $ipResolver = new Resolver\NetDnsIPResolver();
 
-// Checking from url
+// Checking from url. Example how to create custom resolver.
 $urlResolver = new Resolver\UrlResolver();
 $urlResolver->setLocation('https://zeustracker.abuse.ch/blocklist.php?download=baddomains');
-$urlResolver->setSupportedChecks(array(Server::CHECK_DOMAIN));
 
-// Checking from file
+// Checking from file.
 file_put_contents('zeustracker.ip.bl.file', file_get_contents('https://zeustracker.abuse.ch/blocklist.php?download=ipblocklist'));
-$fileResolver = new Resolver\FileResolver('zeustracker.ip.bl.file', array(Server::CHECK_IPV4));
+$fileResolver = new Resolver\FileResolver('zeustracker.ip.bl.file');
 
 $dnsbl = new Dnsbl();
 
-$dnsbl->addBl(new Server('dbl.spamhaus.org', array(Server::CHECK_DOMAIN), $domainResolver));
-$dnsbl->addBl(new Server('pbl.spamhaus.org', array(Server::CHECK_IPV4), $ipResolver));
-$dnsbl->addBl(new Server('zeustracker.abuse.ch', array(Server::CHECK_DOMAIN), $urlResolver));
-$dnsbl->addBl(new Server('zeustracker.ip.bl.file', array(Server::CHECK_IPV4), $fileResolver));
+$servers = array(
+    new Server('zeustracker.abuse.ch',   $urlResolver,    array('domain', 'IPv4')),
+    new Server('zeustracker.ip.bl.file', $fileResolver,   array('IPv4')),
+    new Server('dbl.spamhaus.org',       $domainResolver, array('domain')),
+    new Server('pbl.spamhaus.org',       $ipResolver,     array('IPv4'))
+);
 
-foreach ($dnsbl->checkDomain('test.com') as $blackList => $result) {
-    print_r($result);
-}
+$dnsbl->setBlServers($servers);
 
-foreach ($dnsbl->checkIP('127.0.0.2') as $blackList => $result) {
-    print_r($result);
-}
+// Checking in bl who is supported domain.
+print_r($dnsbl->checkDomain('advanc320.co.vu'));
 
+// Checking in bl who is supported IP.
+print_r($dnsbl->checkIP('127.0.0.2'));
+
+// Checking in all bl.
+print_r($dnsbl->check('advanc320.co.vu'));
 
 ```
 
 Installation
 ------------
 
-``` json
-    "webeith/dnsbl":  "dev-master"
-```
-
 ``` bash
-$> php composer.phar update
+$> php composer.phar require webeith/dnsbl
 ```

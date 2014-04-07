@@ -23,31 +23,14 @@ class ServerTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shouldSetDefaultResolverAfterSetInBl()
+    public function constructor()
     {
         $resolver = $this->getMock('\Dnsbl\Resolver\InterfaceResolver');
-        $resolver->expects($this->once())
-            ->method('isSupport')->will(
-                $this->returnValue(true)
-            );
 
-        $spBl = new Server('sp.subrl.org', array(Server::CHECK_DOMAIN));
-        $this->assertNull($spBl->getResolver());
-        $spBl->setResolver($resolver);
+        $bl = new Server('sp.subrl.org', $resolver, array('domain'));
 
-        $this->dnsbl->addBl($spBl);
-        $this->assertInstanceOf('\Dnsbl\Resolver\InterfaceResolver', $spBl->getResolver());
-    }
-
-    /**
-     * @test
-     */
-    public function shouldCheckSupportedTypes()
-    {
-        $this->setExpectedException(
-          '\Dnsbl\BL\ServerException', 'Foo is unsupported type checking'
-        );
-
-        $spBl = new Server('sp.subrl.org', array(Server::CHECK_DOMAIN, 'Foo'));
+        $this->assertTrue($bl->supportDomain());
+        $this->assertSame('sp.subrl.org', $bl->getHostname());
+        $this->assertInstanceOf('\Dnsbl\Resolver\InterfaceResolver', $bl->getResolver());
     }
 }

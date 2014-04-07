@@ -22,10 +22,6 @@ use Dnsbl\Resolver\Response,
  */
 class NetDnsIPResolver extends NetDnsAdapter
 {
-    protected $supportedChecks = array(
-        Server::CHECK_IPV4
-    );
-
     public function execute($hostname)
     {
         $server = $this->getContext();

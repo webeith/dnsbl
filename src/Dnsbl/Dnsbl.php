@@ -23,27 +23,27 @@ class Dnsbl
     /**
      * @var array
      */
-    protected $blackLists = array();
+    protected $blServerss = array();
 
     /**
-     * Check domain name in black list
+     * Check hostname in all bl servers
      *
-     * @param string $domain
+     * @param string $hostname
      *
      * @return Dnsbl\Resolver\Response\InterfaceResponse
      */
-    public function checkDomain($domain)
+    public function check($hostname)
     {
         $result = array();
-        foreach ($this->getDomainBlackLists() as $server) {
-            $result[$server->getHostname()] = $server->getResolver()->execute($domain);
+        foreach ($this->getBlServers() as $blServer) {
+            $result[] = $blServer->getResolver()->execute($hostname);
         }
 
         return $result;
     }
 
     /**
-     * Check IPv4 name in black list
+     * Check IP in black list
      *
      * @param string $ip
      *
@@ -52,111 +52,85 @@ class Dnsbl
     public function checkIP($ip)
     {
         $result = array();
-        foreach ($this->getIpv4BlackLists() as $server) {
-            $result[$server->getHostname()] = $server->getResolver()->execute($ip);
+        foreach ($this->getBlServers() as $blServer) {
+            if ($blServer->supportIPv4()) {
+                $result[] = $blServer->getResolver()->execute($ip);
+            }
         }
 
         return $result;
     }
-
     /**
-     * Check IPv6 name in black list
+     * Check domain name in black list
      *
-     * @param string $ip
+     * @param string $domain
      *
      * @return Dnsbl\Resolver\Response\InterfaceResponse
      */
-    public function checkIPv6($ip)
+    public function checkDomain($hostname)
     {
         $result = array();
-        foreach ($this->getIpv6BlackLists() as $server) {
-            $result[$server->getHostname()] = $server->getResolver()->execute($ip);
+        foreach ($this->getBlServers() as $blServer) {
+            if ($blServer->supportDomain()) {
+                $result[] = $blServer->getResolver()->execute($hostname);
+            }
         }
 
         return $result;
     }
 
     /**
-     * Add the value to BlackLists and set default resolver
+     * Add the server to BlServers
      *
      * @param Server $server
      *
+     * @exception Resolver\NotFoundResolverException
+     *
      * @return Dnsbl
      */
-    public function addBl(Server $server)
+    public function addBlServer(Server $server)
     {
         if (is_null($server->getResolver())) {
             throw new Resolver\NotFoundResolverException('Set the server resolver.');
         }
 
-        foreach($server->getSupportedChecks() as $check) {
-            $this->blackList[$check][$server->getHostname()] = $server;
-        }
+        $this->blServers[] = $server;
 
         return $this;
     }
 
     /**
-     * Gets the value of BlackLists
+     * Add the server to BlServers
      *
-     * @return array
-     */
-    public function getBlackLists()
-    {
-        return $this->blackList;
-    }
-
-    /**
-     * Gets the ipv4 of BlackLists
+     * @param Server $server
      *
-     * @return array
-     */
-    public function getIpv4BlackLists()
-    {
-        return $this->blackList[Server::CHECK_IPV4];
-    }
-
-    /**
-     * Gets the ipv6 of BlackLists
-     *
-     * @return array
-     */
-    public function getIpv6BlackLists()
-    {
-        return $this->blackList[Server::CHECK_IPV6];
-    }
-
-    /**
-     * Gets the domain of BlackLists
-     *
-     * @return array
-     */
-    public function getDomainBlackLists()
-    {
-        return $this->blackList[Server::CHECK_DOMAIN];
-    }
-
-    /**
-     * Remove the value from BlackLists
-     *
-     * @param string $blackList
+     * @exception Resolver\NotFoundResolverException
      *
      * @return Dnsbl
      */
-    public function removeBl($blackList)
+    public function setBlServers(array $servers)
     {
-        if (isset($this->blackList[Server::CHECK_IPV4][$blackList])) {
-            unset($this->blackList[Server::CHECK_IPV4][$blackList]);
-        }
+        $this->blServers = array();
+        foreach ($servers as $server) {
+            if ($server instanceof Server) {
+                if (is_null($server->getResolver())) {
+                    throw new Resolver\NotFoundResolverException('Set the server resolver.');
+                }
 
-        if (isset($this->blackList[Server::CHECK_IPV6][$blackList])) {
-            unset($this->blackList[Server::CHECK_IPV6][$blackList]);
-        }
-
-        if (isset($this->blackList[Server::CHECK_DOMAIN][$blackList])) {
-            unset($this->blackList[Server::CHECK_DOMAIN][$blackList]);
+                $this->blServers[] = $server;
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * Gets the value of BlServers
+     *
+     * @return array
+     */
+    public function getBlServers()
+    {
+        return $this->blServers;
     }
 }

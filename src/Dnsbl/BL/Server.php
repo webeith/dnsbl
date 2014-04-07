@@ -19,10 +19,6 @@ use Dnsbl\Resolver;
  */
 class Server
 {
-    const CHECK_IPV4 = 'ipv4';
-    const CHECK_IPV6 = 'ipv6';
-    const CHECK_DOMAIN = 'domain';
-
     /**
      * @var string
      */
@@ -34,53 +30,30 @@ class Server
     protected $resolver;
 
     /**
-     * @var array
+     * @var bool
      */
-    protected $supportedChecks;
+    protected $supportDomain = false;
 
-    public function __construct($hostname, array $supportedChecks = array(), Resolver\InterfaceResolver $resolver = null )
+    /**
+     * @var bool
+     */
+    protected $supportIPv4 = false;
+
+    public function __construct($hostname, Resolver\InterfaceResolver $resolver = null, array $supports = array())
     {
-        $this->setSupportedChecks($supportedChecks);
         $this->setHostname($hostname);
+
+        if (in_array('domain', $supports)) {
+            $this->enableDomain(true);
+        }
+
+        if (in_array('IPv4', $supports)) {
+            $this->enableIPv4(true);
+        }
 
         if (!is_null($resolver)) {
             $this->setResolver($resolver);
         }
-    }
-
-    /**
-     * Gets the value of supportedChecks
-     *
-     * @return string
-     */
-    public function getSupportedChecks()
-    {
-        return $this->supportedChecks;
-    }
-
-    /**
-     * Sets the value of supportedChecks
-     *
-     * @param string $supportedChecks
-     *
-     * @return Server
-     */
-    public function setSupportedChecks(array $supportedChecks)
-    {
-        $checks = array(
-            self::CHECK_IPV4,
-            self::CHECK_IPV6,
-            self::CHECK_DOMAIN
-        );
-
-        foreach ($supportedChecks as $check) {
-            if (!in_array($check, $checks)) {
-                throw new ServerException($check . ' is unsupported type checking');
-            }
-        }
-        $this->supportedChecks = $supportedChecks;
-
-        return $this;
     }
 
     /**
@@ -92,29 +65,7 @@ class Server
      */
     public function enableDomain($value = true)
     {
-        if ($value) {
-            $this->addCheck(self::CHECK_DOMAIN);
-        } else {
-            $this->removeCheck(self::CHECK_DOMAIN);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Enable or disable the IPv6
-     *
-     * @param bool $value
-     *
-     * @return Server
-     */
-    public function enableIPv6($value = true)
-    {
-        if ($value) {
-            $this->addCheck(self::CHECK_IPV6);
-        } else {
-            $this->removeCheck(self::CHECK_IPV6);
-        }
+        $this->supportDomain = $value;
 
         return $this;
     }
@@ -128,43 +79,29 @@ class Server
      */
     public function enableIPv4($value = true)
     {
-        if ($value) {
-            $this->addCheck(self::CHECK_IPV4);
-        } else {
-            $this->removeCheck(self::CHECK_IPV4);
-        }
+        $this->supportIPv4 = $value;
 
         return $this;
     }
 
     /**
-     * Check server has IPv4
+     * Server has support Domain
      *
      * @return bool
      */
-    public function hasIPv4()
+    public function supportDomain()
     {
-        return isset($this->supportedChecks[self::CHECK_IPV4]);
+        return $this->supportDomain;
     }
 
     /**
-     * Check server has IPv6
+     * Server has support IPv4
      *
      * @return bool
      */
-    public function hasIPv6()
+    public function supportIPv4()
     {
-        return isset($this->supportedChecks[self::CHECK_IPV6]);
-    }
-
-    /**
-     * Check server has domain
-     *
-     * @return bool
-     */
-    public function hasDomain()
-    {
-        return isset($this->supportedChecks[self::CHECK_DOMAIN]);
+        return $this->supportIPv4;
     }
 
     /**
@@ -210,47 +147,10 @@ class Server
      */
     public function setResolver(Resolver\InterfaceResolver $resolver)
     {
-        foreach ($this->supportedChecks as $check) {
-            if (!$resolver->isSupport($check)) {
-                throw new ServerException('Resolver ' .get_class($resolver) .' is unsupported type checking: ' . $check);
-            }
-        }
-
         $resolver->setContext($this);
 
         $this->resolver = $resolver;
 
         return $this;
-    }
-
-    /**
-     * Add supported check type
-     *
-     * @param string $check
-     *
-     * @return void
-     */
-    protected function addCheck($check)
-    {
-        if (!in_array($check, $this->supportedChecks)) {
-            $this->supportedChecks[] = $check;
-        }
-    }
-
-    /**
-     * Remove supported check type
-     *
-     * @param string $check
-     *
-     * @return void
-     */
-    protected function removeCheck($check)
-    {
-        if (in_array($check, $this->supportedChecks)) {
-            $key = array_search($check, $this->supportedChecks);
-            if (isset($this->supportedChecks[$key])) {
-                unset($this->supportedChecks[$key]);
-            }
-        }
     }
 }

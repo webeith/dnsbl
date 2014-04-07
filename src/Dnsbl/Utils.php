@@ -29,6 +29,10 @@ class Utils
      */
     public static function getHostForLookup($hostname, $blacklist, $isIP = true)
     {
+        if ($isIP && filter_var($hostname, FILTER_VALIDATE_IP)) {
+            return self::buildLookUpIP($hostname, $blacklist);
+        }
+
         if ($isIP && !filter_var($hostname, FILTER_VALIDATE_IP)) {
             $resolver = new \Net_DNS_Resolver;
             $response = $resolver->query($hostname);
