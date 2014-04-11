@@ -135,6 +135,8 @@ class Server
      */
     public function getResolver()
     {
+        $this->resolver->setContext($this);
+
         return $this->resolver;
     }
 
@@ -147,8 +149,6 @@ class Server
      */
     public function setResolver(Resolver\InterfaceResolver $resolver)
     {
-        $resolver->setContext($this);
-
         $this->resolver = $resolver;
 
         return $this;
