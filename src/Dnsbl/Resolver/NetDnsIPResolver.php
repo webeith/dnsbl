@@ -43,6 +43,11 @@ class NetDnsIPResolver extends NetDnsAdapter
                 foreach ($resultTXT->answer as $txt) {
                     $answer .= $txt->text[0];
                 }
+            } else {
+                $resultA = @$this->query($query, 'A');
+                if ($resultA && isset($resultA->answer[0])) {
+                    $answer = $resultA->answer[0]->address;
+                }
             }
 
             $response->setAnswer($answer);
